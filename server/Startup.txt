@@ -1,0 +1,2 @@
+1. 'FLASK_APP=run.py flask run'
+2. open browser at 'localhost:<port>'
