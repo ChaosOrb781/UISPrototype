@@ -1,12 +1,60 @@
-<!-- templates/index.html -->  
+{% extends "layout.html" %}
+{% block content %}
+<style>
+body{
+  font-family: 'Muli', sans-serif;
+	background: url("http://i68.tinypic.com/22hij7.jpg");
+}
 
-<!doctype html>
+h2 {
+    font-family: 'Damion', cursive;
+    font-weight: 400;
+    color: #000000;
+    font-size: 35px;
+    text-align: center;
+    position: relative;
+}
+h2:before {
+    position: absolute;
+    content: '';
+    width: 100%;
+    left: 0;
+    top: 22px;
+    background: #000000;
+    height: 1px;
+}
+h2 i {
+    font-style: normal;
+    background: #000000;
+    position: relative;
+    padding: 10px;
+}
 
-<html lang="en">
-<head>
-  <h1>Title!</h1>
-</head>
-<body>
-	<p> Testing body: {{message}} </p>
-</body>
-</html>
+:focus{outline: none;}
+
+/* necessary to give position: relative to parent. */
+input[type="text"]{font: 15px/24px 'Muli', sans-serif; color: #333; width: 100%; box-sizing: border-box; letter-spacing: 1px;}
+
+:focus{outline: none;}
+
+.col-3{float: left; width: 100%; margin: 40px 3%; position: relative;} /* necessary to give position: relative to parent. */
+input[type="text"]{font: 15px/24px "Lato", Arial, sans-serif; color: #333; width: 100%; box-sizing: border-box; letter-spacing: 1px;}
+
+.effect-16{border: 0; padding: 4px 0; border-bottom: 1px solid #ccc; background-color: transparent;}
+.effect-16 ~ .focus-border{position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: #4caf50; transition: 0.4s;}
+.effect-16:focus ~ .focus-border,
+.has-content.effect-16 ~ .focus-border{width: 100%; transition: 0.4s;}
+.effect-16 ~ label{position: absolute; left: 0; width: 100%; top: 9px; color: #aaa; transition: 0.3s; z-index: -1; letter-spacing: 0.5px;}
+.effect-16:focus ~ label, .has-content.effect-16 ~ label{top: -16px; font-size: 12px; color: #4caf50; transition: 0.3s;}
+</style>
+<div class="mahi_holder bg-light">
+		
+    <div class="container">
+      <div class="col-3 input-effect">
+				<input class="effect-16" type="text" placeholder="">
+					<label>First Name</label>
+					<span class="focus-border"></span>
+			</div>
+    </div>
+</div>
+{% endblock content %}

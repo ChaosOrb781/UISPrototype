@@ -1,0 +1,1 @@
+python "C:\Users\chaos\Google Drev\UNIVERSITET - Datalogi\Udvikling af informationsystemer\Prototype\server\run.py" 
