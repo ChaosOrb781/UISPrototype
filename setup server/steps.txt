@@ -1,3 +1,0 @@
-1. "pip install virtualenv"
-2. go to project folder in ubuntu
-3. "virtualenv venv"
