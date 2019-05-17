@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style type="text/css">
+  #formdiv {
+    background: #e1e1e1;
+    border: 3px groove #f1f1f1;
+    padding: 4px;
+    text-align: center;
+    border-radius: 12px;
+    width: 250px;
+    height: 250px;
+  }
+
+  input {
+    padding: 6px 4px 7px 7px;
+    margin-top: 5px;
+    border: 0px;
+    font-size: 18px;
+  }
+
+  .input {
+    border-bottom: 1px double black;
+  }
+
+  .input:focus {
+    background-color: #f7f7f7;
+  }
+
+  #user {
+    border-bottom: 2px solid {{usercolor}};
+  }
+
+  #pswd {
+    border-bottom: 2px solid {{pswdcolor}};
+  }
+
+  #submit {
+    background-color: #f7f7f7;
+    border: 3px groove lightgray;
+    border-radius: 5px;
+  }
+
+    #submit:hover {
+      background-color: #bfe2ff;
+    }
+</style>
+
+<div id="formdiv">
+  <br />
+  <form action="" method="post">
+    <h4>CPR Nummer:</h4>
+    <input type="text" class="input" id="user" placeholder="CPR nummer" name="username" value="{{request.form.username}}" maxlength="12" /><br />
+    <br />
+    <h4>Password:</h4>
+    <input type="password" class="input" id="pswd" placeholder="Password" name="password" value="{{request.form.password}}" maxlength="255" /><br />
+    <input type="submit" id="submit" value="Log ind" />
+    <p>{{error}}</p>
+  </form>
+</div>
+{% endblock content %}

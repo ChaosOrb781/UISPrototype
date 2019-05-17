@@ -7,11 +7,13 @@
     border-right: 2px groove black;
     width: 100%;
   }
+
   th {
     border-bottom: 3px groove #4c4c4c;
     border-left: 2px solid #7f7f7f;
     border-right: 2px solid #7f7f7f;
   }
+
   td {
     border-bottom: 2px solid #7f7f7f;
     border-left: 1px solid #7f7f7f;
@@ -21,13 +23,13 @@
 <table>
   <tr>
     {% for name in header %}
-      <th style="text-align: center">{{name}}</th>
+    <th style="text-align: center">{{name}}</th>
     {% endfor %}
   </tr>
   {% for row in data %}
   <tr>
     {% for col in row %}
-      <td style="text-align: center">{{col}}</td>
+    <td style="text-align: center">{{col}}</td>
     {% endfor %}
   </tr>
   {% endfor %}
