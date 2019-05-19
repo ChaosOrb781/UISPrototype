@@ -1,5 +1,5 @@
 import psycopg2
-import numpy
+import numpy as np
 
 database = ""
 
@@ -29,17 +29,14 @@ def query(conn, query_text):
     cursor = conn.cursor()
     cursor.execute(query_text)
     data = cursor.fetchall()
-    if (type(data) == list and len(data) > 0):
-      if (type(data[0]) == list):
-        print("Queried a 2-dimensional list")
-      else:
-        print("Queried a 1-dimensional list")
-    else:
-      print("Queried a single element")
-    return (data, True)
+    data = np.array(data)
+    return (data, data.shape, True)
   except (Exception, psycopg2.Error) as error:
     print("Failed to execute query due to: ", error)
-    return (0, False)
+    return (0, 0, False)
+
+def getUserByName(conn, username):
+  user, shape, state = query(conn, 'SELECT * FROM users ')
 
 def getDatabaseTableNames(conn):
   print("Querying all open tables of current database...")
@@ -59,17 +56,13 @@ def getColumnsNames(conn, tableName):
     return (0, False)
   else:
     getColumnsNames = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName + "'"
-    header, state = query(conn, getColumnsNames)
-    for i in range(len(header)):
-      header[i] = str(header[i])
-      print(header[i])
-    return (header, state)
+    return query(conn, getColumnsNames)
 
 def getTableData(conn, tableName, columns):
-  header, state1 = getColumnsNames(conn, tableName)
+  header, shape1, state1 = getColumnsNames(conn, tableName)
   getData = "SELECT " + columns + " FROM " + tableName
-  data, state2 = query(conn, getData)
-  return (header, data, state1 and state2)
+  data, shape2, state2 = query(conn, getData)
+  return (header, data, shape2, state1 and state2)
 
 def getSearchResult(conn, tableName, column, needle):
 	query_text = "SELECT * FROM " + tableName + " WHERE " + column + " LIKE '%" + needle + "%'"

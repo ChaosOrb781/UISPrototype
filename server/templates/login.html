@@ -9,7 +9,7 @@
     text-align: center;
     border-radius: 12px;
     width: 250px;
-    height: 250px;
+    height: 270px;
   }
 
   input {
@@ -49,12 +49,14 @@
 <div id="formdiv">
   <br />
   <form action="" method="post">
+    <h3>{{usertype}} login</h3>
     <h4>CPR Nummer:</h4>
     <input type="text" class="input" id="user" placeholder="CPR nummer" name="username" value="{{request.form.username}}" maxlength="12" /><br />
     <br />
     <h4>Password:</h4>
     <input type="password" class="input" id="pswd" placeholder="Password" name="password" value="{{request.form.password}}" maxlength="255" /><br />
-    <input type="submit" id="submit" value="Log ind" />
+    <input type="submit" id="submit" name="submit" value="Log ind" />
+    <input type="submit" id="submit" name="changeType" value="{{notUsertype}}" />
     <p>{{error}}</p>
   </form>
 </div>

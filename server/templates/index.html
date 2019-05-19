@@ -3,32 +3,66 @@
 {% block content %}
 <style>
   table {
-    border-left: 2px groove black;
-    border-right: 2px groove black;
+    border-collapse: collapse;
+    margin-top: 10px;
+    border-top: 5px groove #000000;
+    border-bottom: 5px groove #000000;
     width: 100%;
   }
+
   th {
     border-bottom: 3px groove #4c4c4c;
     border-left: 2px solid #7f7f7f;
     border-right: 2px solid #7f7f7f;
   }
+
   td {
-    border-bottom: 2px solid #7f7f7f;
-    border-left: 1px solid #7f7f7f;
-    border-right: 1px solid #7f7f7f;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    padding: 2px;
+  }
+
+  #profileSummary {
+    display: inline-block;
+    height: 40px;
+    width: 20%;
+  }
+
+  #threadHeader {
+    height: 40px;
+    display: inline-block;
+    width: 79%;
+    border-right: 2px solid black;
+  }
+
+  #threadHeaderButton {
+    text-decoration: none;
+    position: relative;
+    top: 6px;
+    color: inherit;
+    border: none;
+    font-size: 20px;
+  }
+
+  #threadHeaderButton:hover {
+    background-color: darkblue;
+    color: white;
+    cursor: pointer;
   }
 </style>
+<h2>{{title}}</h2>
 <table>
+  {% for thread in threads %}
   <tr>
-    {% for name in header %}
-      <th style="text-align: center">{{name}}</th>
-    {% endfor %}
-  </tr>
-  {% for row in data %}
-  <tr>
-    {% for col in row %}
-      <td style="text-align: center">{{col}}</td>
-    {% endfor %}
+    <td id="threadHeader">
+      <form action="" method="post">
+        <input type="submit" name="enterThread" id="threadHeaderButton" value="{{thread.header}}" />
+      </form>
+    </td>
+    <td id="profileSummary">
+      <h4>{{thread.username}}</h4>
+      {{thread.createddate}}
+    </td>
   </tr>
   {% endfor %}
 </table>

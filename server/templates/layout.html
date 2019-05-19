@@ -45,22 +45,45 @@
     <a href="/" style="text-decoration: none; color: black">
 			<h1> MinSundhedsplatform </h1>
 			<h2> Medicin Håndbog </h2>
+      {% if current_user != [] %}
+        <h3>
+          {{current_user[1] + " " + current_user[2]}}
+        </h3>
+      {% else %}
+        <h3>
+        </h3>
+      {% endif %}
     </a>
   </div>
   <div>
     <div id="hyperleft">
       <ul>
-        {% if current_user != "" %}
-          <a href="#"><li>Søg</li>        </a>
-          <a href="#"><li>Indsæt</li>           </a>
-          <a href="#"><li>Opdater</li>          </a>
-          <a href="#"><li>Slet</li>             </a>
-          <a href="#"><li>Create backup</li>    </a>
-          <a href="#"><li>Load backup</li>      </a>
-          <a href="/logout"><li>Log ud</li></a>
+        {% if current_user != [] and privilages == 2%}
+          <a href="/"><li>Forside</li>          </a>
+          <a href="/minetråde"><li>Mine tråde</li>       </a>
+          <a href="#"><li>Ny tråd</li>          </a>
+          <a href="#"><li>Register borger</li>  </a>
+          <a href="#"><li>Register ansat</li>   </a>
+          <a href="#"><li>Tilføj medicin</li>   </a>
+          <a href="/logout"><li>Log ud</li>     </a>
         {% else %}
-          <a href="#"><li>Søg</li>        </a>
-          <a href="/login"><li>Login</li>       </a>
+          {% if current_user != [] and privilages == 1%}
+            <a href="/"><li>Forside</li>          </a>
+            <a href="/minetråde"><li>Mine tråde</li>       </a>
+            <a href="#"><li>Ny tråd</li>          </a>
+            <a href="#"><li>Register borger</li>  </a>
+            <a href="/logout"><li>Log ud</li>     </a>
+          {% else %}
+            {% if current_user != [] and privilages == 0%}
+              <a href="/"><li>Forside</li>          </a>
+              <a href="/minetråde"><li>Mine tråde</li>       </a>
+              <a href="#"><li>Ny tråd</li>          </a>
+              <a href="/logout"><li>Log ud</li>     </a>
+            {% else %}
+              <a href="/"><li>Forside</li>          </a>
+              <a href="/login"><li>Login</li>       </a>
+            {% endif %}
+          {% endif %}
         {% endif %}
       </ul>
     </div>

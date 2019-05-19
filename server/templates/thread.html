@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+  table {
+    border-collapse: collapse;
+    margin-top: 10px;
+    border-top: 5px groove #000000;
+    border-bottom: 5px groove #000000;
+    width: 100%;
+  }
+
+  th {
+    border-bottom: 3px groove #4c4c4c;
+    border-left: 2px solid #7f7f7f;
+    border-right: 2px solid #7f7f7f;
+  }
+
+  td {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    padding: 2px;
+  }
+
+  #profileSummary {
+    display: inline-block;
+    height: 100px;
+    width: 20%;
+  }
+
+  #postContent {
+    height: 100px;
+    display: inline-block;
+    width: 79%;
+    border-right: 2px solid black;
+  }
+</style>
+<h2>{{thread.header}}</h2>
+<table>
+  <tr>
+    <td id="profileSummary">
+      <h3 style="color: red">{{thread.username}}</h3>
+      {% if thread.journalID != "" and thread.processID != "" %}
+        <p>Proces ID: {{thread.processID}}</p>
+        <p>Journal ID: {{thread.journalID}}</p>
+      {% else %}
+        <p>Jobstilling: {{thread.specialization}}</p>
+        <p>Arbjeder os: {{post.works_at}}</p>
+      {% endif %}
+      <p>Skrevet: {{thread.createddate}}</p>
+    </td>
+    <td id="postContent">
+      <p>{{thread.content | safe}}</p>
+    </td>
+  </tr>
+  {% for post in thread.posts %}
+  <tr>
+    <td id="profileSummary">
+      <h4>{{post.username}}</h4>
+      <p>Jobstilling: {{post.specialization}}</p>
+      <p>Arbjeder os: {{post.works_at}}</p>
+      <p>Skrevet: {{post.createddate}}</p>
+      <p>Ændret: {{post.modifieddate}}</p>
+    </td>
+    <td id="postContent">
+      <p>{{post.content | safe}}</p>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock content %}

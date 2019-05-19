@@ -1,106 +1,129 @@
-\i schema_drop.sql
+\set AUTOCOMMIT off
+\echo :AUTOCOMMIT
 
-CREATE TABLE IF NOT EXISTS Customers(
-	CPR_number integer PRIMARY KEY,
-	risk_type boolean default False,
-	password varchar(120),
-	name varchar(60),
-	address text
-);
+DROP TABLE IF EXISTS medical;
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS threads;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS employees_backup;
+DROP TABLE IF EXISTS patients;
+DROP TABLE IF EXISTS patients_backup;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users_backup;
 
-CREATE TABLE IF NOT EXISTS Employees(
-	id integer PRIMARY KEY,
-    name varchar(20),
-    password varchar(120)
-);
--- Solving the accounts ISA Hierachy. 
--- (-)relational style. In this case every entity is implemented
--- -objects atyle. In this case only typed objects. Implement a type on manages
--- -nulls style. In this case only accounts
-
--- Serial this is the account number across the system
--- 
-
-CREATE TABLE IF NOT EXISTS Accounts(
-	account_number SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS users(
+	CPR BIGINT PRIMARY KEY,
+	firstname varchar(120) NOT NULL,
+	lastname varchar(120) NOT NULL,
+	password varchar(120) NOT NULL,
+	address text DEFAULT 'Adresse ikke sat',
 	created_date date,
-	CPR_number integer  REFERENCES Customers(CPR_number)
+	last_online_date date
 );
 
-
-CREATE TABLE IF NOT EXISTS manages(
-	emp_cpr_number INTEGER NOT NULL REFERENCES employees(id),
-	account_number INTEGER NOT NULL REFERENCES accounts
-);
-ALTER TABLE manages ADD CONSTRAINT pk_manages
-  PRIMARY KEY (emp_cpr_number, account_number)
-  ;
-
-
-CREATE TABLE IF NOT EXISTS CheckingAccounts(
-	account_number INTEGER PRIMARY KEY
+CREATE TABLE IF NOT EXISTS users_backup(
+	CPR BIGINT PRIMARY KEY,
+	firstname varchar(120) NOT NULL,
+	lastname varchar(120) NOT NULL,
+	password varchar(120) NOT NULL,
+	address text DEFAULT 'Adresse ikke sat',
+	created_date date,
+	last_online_date date
 );
 
-ALTER TABLE CheckingAccounts ADD CONSTRAINT fk_ChAcc_001 
-  FOREIGN KEY (account_number) REFERENCES Accounts(account_number)
-;
-
-CREATE TABLE IF NOT EXISTS InvestmentAccounts(
-	account_number SERIAL PRIMARY KEY
-);
-ALTER TABLE InvestmentAccounts ADD CONSTRAINT fk_InAcc_001 
-  FOREIGN KEY (account_number) REFERENCES Accounts(account_number)
-;
-
--- transfers
-CREATE TABLE IF NOT EXISTS Transfers(
-	id SERIAL PRIMARY KEY,
-	transfer_date date,
-	amount INTEGER,
-	from_account  INTEGER REFERENCES accounts(account_number),
-	to_account    INTEGER REFERENCES accounts(account_number)
+CREATE TABLE IF NOT EXISTS employees(
+	CPR BIGINT PRIMARY KEY,
+	specialization varchar(100) NOT NULL,
+	temp boolean DEFAULT TRUE,
+	privilege integer DEFAULT 0,
+	works_at integer NOT NULL,
+	FOREIGN KEY (CPR) REFERENCES users(CPR)
+  --FOREIGN KEY (works_at) REFERENCES departments(id)
 );
 
-COMMENT ON COLUMN Transfers.from_account IS 'has origin';
-COMMENT ON COLUMN Transfers.to_account   IS 'has destination';
-
--- checking accounts
-CREATE TABLE IF NOT EXISTS Withdraws(
-	id SERIAL PRIMARY KEY,
-	account_number  INTEGER REFERENCES CheckingAccounts(account_number),
-	amount integer,
-	withdraw_date date
+CREATE TABLE IF NOT EXISTS employees_backup(
+	CPR BIGINT PRIMARY KEY,
+	specialization varchar(100) NOT NULL,
+	temp boolean DEFAULT TRUE,
+	privilege integer DEFAULT 0,
+	works_at integer NOT NULL,
+	FOREIGN KEY (CPR) REFERENCES users(CPR)
+  --FOREIGN KEY (works_at) REFERENCES departments(id)
 );
 
-CREATE TABLE IF NOT EXISTS Deposits(
-	id SERIAL PRIMARY KEY,
-	account_number  INTEGER REFERENCES CheckingAccounts(account_number),
-	amount integer,
-	deposit_date date
+CREATE TABLE IF NOT EXISTS patients(
+	CPR BIGINT PRIMARY KEY,
+	journal integer,
+	process_id integer,
+	FOREIGN KEY (CPR) REFERENCES users(CPR)
+	--FOREIGN KEY (journal) REFERENCES journals(id)
+	--FOREIGN KEY (process_id) REFERENCES process(id)
 );
 
--- investments
--- Solving the certificate ISA Hierachy. 
--- -relational style. In this case every entity is implemented
--- -objects atyle. In this case only typed objects.
--- (-)nulls style. In this case only one certificate entity set
-
-CREATE TABLE IF NOT EXISTS Certificates_of_deposit(
-	cd_number SERIAL PRIMARY KEY,
-	account_number  INTEGER REFERENCES InvestmentAccounts(account_number),
-	start_date date,
-	amount integer,
-	maturity_date date,
-	rate integer    --at fixed rate certificated´s of deposite
+CREATE TABLE IF NOT EXISTS patients_backup(
+	CPR BIGINT PRIMARY KEY,
+	journal integer,
+	process_id integer,
+	FOREIGN KEY (CPR) REFERENCES users(CPR)
+	--FOREIGN KEY (journal) REFERENCES journals(id)
+	--FOREIGN KEY (process_id) REFERENCES process(id)
 );
-COMMENT ON COLUMN Certificates_of_deposit.rate IS 'at fixed rate certificated´s of deposite';
 
+CREATE TABLE IF NOT EXISTS threads(
+	id integer PRIMARY KEY,
+	CPR BIGINT NOT NULL,
+	header varchar(100) NOT NULL,
+	content text,
+	created_date date DEFAULT CURRENT_DATE,
+	FOREIGN KEY (CPR) REFERENCES users(CPR)
+);
 
-CREATE OR REPLACE VIEW vw_cd_sum
-AS
-SELECT i.account_number, a.cpr_number, a.created_date
-    , sum (amount) 
-    FROM investmentaccounts i
-    JOIN accounts a ON i.account_number = a.account_number
-    JOIN certificates_of_deposit cd ON i.account_number = cd.account_number   
-GROUP BY  i.account_number, a.cpr_number, a.created_date;
+CREATE TABLE IF NOT EXISTS posts(
+	id integer PRIMARY KEY,
+	tid integer NOT NULL,
+	CPR BIGINT NOT NULL,
+  content text NOT NULL,
+	created_date date DEFAULT CURRENT_DATE,
+	modified_date date DEFAULT CURRENT_DATE,
+	FOREIGN KEY (tid) REFERENCES threads(id),
+	FOREIGN KEY (CPR) REFERENCES employees(CPR)
+);
+
+CREATE TABLE IF NOT EXISTS medical(
+	id integer PRIMARY KEY,
+	name varchar(120) NOT NULL,
+	latin_name varchar(120) NOT NULL,
+	description text DEFAULT 'Ingen beskrivelse sat',
+	created_by varchar(120) NOT NULL,
+	created_date date DEFAULT CURRENT_DATE
+);
+
+DROP TRIGGER IF EXISTS insert_user ON users;
+DROP TRIGGER IF EXISTS insert_patient ON patients;
+DROP TRIGGER IF EXISTS insert_employee ON employees;
+
+CREATE OR REPLACE FUNCTION update_userbackup() RETURNS trigger AS $update_userbackup$
+BEGIN
+	NEW.CPR = OLD.CPR;
+	IF (OLD.firstname IS DISTINCT FROM NEW.firstname) THEN
+		EXECUTE CONCAT('UPDATE users_backup SET firstname = ', NEW.firstname, 'WHERE CPR = ', OLD.CPR); 
+	END IF;
+	IF (OLD.lastname IS DISTINCT FROM NEW.lastname) THEN
+		EXECUTE CONCAT('UPDATE users_backup SET lastname = ', NEW.lastname, 'WHERE CPR = ', OLD.CPR); 
+	END IF;
+	IF (OLD.password IS DISTINCT FROM NEW.password) THEN
+		EXECUTE CONCAT('UPDATE users_backup SET password = ', NEW.password, 'WHERE CPR = ', OLD.CPR); 
+	END IF;
+	IF (OLD.address IS DISTINCT FROM NEW.address) THEN
+		EXECUTE CONCAT('UPDATE users_backup SET address = ', NEW.address, 'WHERE CPR = ', OLD.CPR); 
+	END IF;
+	RETURN NEW;
+END;
+$update_userbackup$ LANGUAGE plpgsql;
+
+CREATE TRIGGER insert_user AFTER UPDATE ON users
+FOR ROW
+	WHEN (OLD.* IS DISTINCT FROM NEW.*)
+	EXECUTE PROCEDURE update_userbackup();
+	
+COMMIT;
