@@ -23,30 +23,7 @@ def startPage():
     #try:
     fetch = request.form['enterThread']
     print("Entering thread: " + fetch)
-    conn, stateConn = postgresql.createConnection("prototype")
-    if stateConn:
-      # threads(0-4), users(5-10), patients(11-12), employees(13-16)
-      threadDat, shape, stateThread = postgresql.query(conn, "SELECT * FROM threads INNER JOIN users ON threads.CPR=users.CPR LEFT JOIN patients ON threads.CPR=patients.CPR LEFT JOIN employees ON threads.CPR=employees.CPR AND threads.header='" + fetch + "'")
-      if stateThread and shape != 0 and len(shape) > 0 and shape[0] > 0:
-        chosenThread = threadDat[0]
-        # posts(0-5), users(6-11), employees(12-15)
-        postsDat, shape, statePosts = postgresql.query(conn, "SELECT * FROM posts INNER JOIN users ON posts.CPR=users.CPR LEFT JOIN employees ON posts.CPR=employees.CPR AND posts.tid=" + str(chosenThread[0]) + " ORDER BY posts.created_date")
-        if statePosts:
-          posts = []
-          for post in postsDat:
-            posts.append(forum.post(post[0], post[1], post[7] + " " + post[8], post[14], post[17], post[3], post[4], post[5]))
-          thread = forum.thread(chosenThread[0], chosenThread[6] + " " + chosenThread[7], chosenThread[14], chosenThread[13], chosenThread[13], chosenThread[16], chosenThread[2], chosenThread[3], chosenThread[4], posts)
-          postgresql.closeConnection(conn)
-          return render_template('thread.html', current_user=current_user, privilages=privilages, thread=thread)
-        else:
-          postgresql.closeConnection(conn)
-          print("Failed to fetch posts related to thread " + fetch)
-      else:
-        postgresql.closeConnection(conn)
-        print("Failed to fetch thread related to header " + fetch)
-    else:
-      print("Failed to connect to database")
-    return render_template('thread.html', current_user=current_user, privilages=privilages)
+    return enterThread(fetch)
     #except Exception as e:
       #print("Failed to find thread: " + str(e))
   elif request.method == 'GET':
@@ -76,30 +53,7 @@ def myThreads():
     try:
       fetch = request.form['enterThread']
       print("Entering thread: " + fetch)
-      conn, stateConn = postgresql.createConnection("prototype")
-      if stateConn:
-        # threads(0-4), users(5-10), patients(11-12), employees(13-16)
-        threadDat, shape, stateThread = postgresql.query(conn, "SELECT * FROM threads INNER JOIN users ON threads.CPR=users.CPR LEFT JOIN patients ON threads.CPR=patients.CPR LEFT JOIN employees ON threads.CPR=employees.CPR AND threads.header='" + fetch + "'")
-        if stateThread and shape != 0 and len(shape) > 0 and shape[0] > 0:
-          chosenThread = threadDat[0]
-          # users(0-6), employees(7-10), posts(11-15)
-          postsDat, shape, statePosts = postgresql.query(conn, "SELECT * FROM posts INNER JOIN users ON posts.CPR=users.CPR LEFT JOIN employees ON posts.CPR=employees.CPR AND posts.tid=" + str(chosenThread[0]) + " ORDER BY posts.created_date")
-          if statePosts:
-            posts = []
-            for post in postsDat:
-              posts.append(forum.post(int(post[11]), int(post[12]), post[1] + " " + post[2], post[7], post[10], post[13], post[14], post[15]))
-            thread = forum.thread(int(chosenThread[0]), chosenThread[6] + " " + chosenThread[7], chosenThread[12], chosenThread[11], chosenThread[13], chosenThread[16], chosenThread[2], chosenThread[3], chosenThread[4], posts)
-            postgresql.closeConnection(conn)
-            return render_template('thread.html', current_user=current_user, privilages=privilages, thread=thread)
-          else:
-            postgresql.closeConnection(conn)
-            print("Failed to fetch posts related to thread " + fetch)
-        else:
-          postgresql.closeConnection(conn)
-          print("Failed to fetch thread related to header " + fetch)
-      else:
-        print("Failed to connect to database")
-      return render_template('thread.html', current_user=current_user, privilages=privilages)
+      return enterThread(fetch)
     except Exception as e:
       print("Failed to find thread: " + str(e))
   elif request.method == 'GET':
@@ -119,6 +73,32 @@ def myThreads():
         return render_template('index.html', current_user=current_user, privilages=privilages, title="Nye diskussionstråde:", threads=threads)
     postgresql.closeConnection(conn)
     return render_template('index.html', current_user=current_user, privilages=privilages, title="Nye diskussionstråde:")
+
+def enterThread(threadHeader : str):
+  conn, stateConn = postgresql.createConnection("prototype")
+  if stateConn:
+    # threads(0-4), users(5-10), patients(11-12), employees(13-16)
+    threadDat, shape, stateThread = postgresql.query(conn, "SELECT * FROM threads INNER JOIN users ON threads.CPR=users.CPR LEFT JOIN patients ON threads.CPR=patients.CPR LEFT JOIN employees ON threads.CPR=employees.CPR AND threads.header='" + threadHeader + "'")
+    if stateThread and shape != 0 and len(shape) > 0 and shape[0] > 0:
+      chosenThread = threadDat[0]
+      # posts(0-5), users(6-11), employees(12-15)
+      postsDat, shape, statePosts = postgresql.query(conn, "SELECT * FROM posts INNER JOIN users ON posts.CPR=users.CPR LEFT JOIN employees ON posts.CPR=employees.CPR AND posts.tid=" + str(chosenThread[0]) + " ORDER BY posts.created_date")
+      if statePosts:
+        posts = []
+        for post in postsDat:
+          posts.append(forum.post(post[0], post[1], post[7] + " " + post[8], post[14], post[17], post[3], post[4], post[5]))
+        thread = forum.thread(chosenThread[0], chosenThread[6] + " " + chosenThread[7], chosenThread[13], chosenThread[14], chosenThread[3], chosenThread[4], chosenThread[2], chosenThread[3], chosenThread[4], posts)
+        postgresql.closeConnection(conn)
+        return render_template('thread.html', current_user=current_user, privilages=privilages, thread=thread)
+      else:
+        postgresql.closeConnection(conn)
+        print("Failed to fetch posts related to thread " + fetch)
+    else:
+      postgresql.closeConnection(conn)
+      print("Failed to fetch thread related to header " + fetch)
+  else:
+    print("Failed to connect to database")
+  return render_template('thread.html', current_user=current_user, privilages=privilages)
 
 @app.route("/login", methods=['GET', 'POST'])
 def loginPage():
