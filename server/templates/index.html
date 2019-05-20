@@ -50,17 +50,15 @@
     cursor: pointer;
   }
 </style>
-<h2>{{title}}</h2>
+<h2>{{title | safe}}</h2>
 <table>
   {% for thread in threads %}
   <tr>
     <td id="threadHeader">
-      <form action="" method="post">
-        <input type="submit" name="enterThread" id="threadHeaderButton" value="{{thread.header}}" />
-      </form>
+      <a id="threadHeaderButton" href="{{url_for('enterThread', threadid=thread.id)}}">{{thread.header | safe}}</a>
     </td>
     <td id="profileSummary">
-      <h4>{{thread.username}}</h4>
+      <h4>{{thread.username | safe}}</h4>
       {{thread.createddate}}
     </td>
   </tr>

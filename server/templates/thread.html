@@ -22,9 +22,24 @@
     padding: 2px;
   }
 
+  .input {
+    border-bottom: 1px double black;
+  }
+
+  #submit {
+    background-color: #f7f7f7;
+    border: 3px groove lightgray;
+    border-radius: 5px;
+  }
+
+  #submit:hover {
+    background-color: #bfe2ff;
+  }
+
   #profileSummary {
     display: inline-block;
     height: 100px;
+    border-right: 2px solid black;
     width: 20%;
   }
 
@@ -32,19 +47,31 @@
     height: 100px;
     display: inline-block;
     width: 79%;
-    border-right: 2px solid black;
+  }
+
+  #newPost {
+    width: 100%;
+    height: 100px;
+  }
+
+  #textField {
+    padding: 5px;
+    margin: 2px, 20px, 2px, 20px;
+    width: 100%;
+    height: 100px;
+    {{border}}
   }
 </style>
-<h2>{{thread.header}}</h2>
+<h2>{{thread.header | safe}}</h2>
 <table>
   <tr>
     <td id="profileSummary">
-      <h3 style="color: red">{{thread.username}}</h3>
-      {% if thread.journalID != "" and thread.processID != "" %}
+      <h3 style="color: red">{{thread.username | safe}}</h3>
+      {% if thread.journalID != None and thread.processID != None %}
         <p>Proces ID: {{thread.processID}}</p>
         <p>Journal ID: {{thread.journalID}}</p>
       {% else %}
-        <p>Jobstilling: {{thread.specialization}}</p>
+        <p>Jobstilling: {{thread.specialization | safe}}</p>
         <p>Arbjeder os: {{post.works_at}}</p>
       {% endif %}
       <p>Skrevet: {{thread.createddate}}</p>
@@ -56,9 +83,14 @@
   {% for post in thread.posts %}
   <tr>
     <td id="profileSummary">
-      <h4>{{post.username}}</h4>
-      <p>Jobstilling: {{post.specialization}}</p>
+      <h4>{{post.username | safe}}</h4>
+      {% if post.journalID != None and post.processID != None %}
+      <p>Proces ID: {{post.processID}}</p>
+      <p>Journal ID: {{post.journalID}}</p>
+      {% else %}
+      <p>Jobstilling: {{post.specialization | safe}}</p>
       <p>Arbjeder os: {{post.works_at}}</p>
+      {% endif %}
       <p>Skrevet: {{post.createddate}}</p>
       <p>Ændret: {{post.modifieddate}}</p>
     </td>
@@ -68,4 +100,14 @@
   </tr>
   {% endfor %}
 </table>
+{% if privilages >= 0 or current_user[0] == thread.CPR %}
+<div id="newPost">
+  <h2>Svar:</h2>
+  <form action="" method="post">
+    <textarea id="textField" name="postInput" placeholder="Besked til tråd..." wrap="soft"></textarea>
+    <h4>{{error | safe}}</h4>
+    <input type="submit" id="submit" name="postSubmit" value="Send" />
+  </form>
+</div>
+{% endif %}
 {% endblock content %}
