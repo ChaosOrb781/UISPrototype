@@ -3,8 +3,12 @@
 {% block content %}
 <style>
   table {
-    border-left: 2px groove black;
-    border-right: 2px groove black;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: auto;
+    object-fit: cover;
+    border-top: 5px groove #000000;
+    border-bottom: 5px groove #000000;
     width: 100%;
   }
 
@@ -15,21 +19,56 @@
   }
 
   td {
-    border-bottom: 2px solid #7f7f7f;
-    border-left: 1px solid #7f7f7f;
-    border-right: 1px solid #7f7f7f;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    border-left: 2px solid #7f7f7f;
+    border-right: 2px solid #7f7f7f;
+    padding: 2px;
   }
+
+  input {
+    padding: 6px 4px 7px 7px;
+    margin-top: 5px;
+    border: 0px;
+    font-size: 18px;
+    border-radius: 7px;
+  }
+
+  #searchfield {
+    width: 80%;
+  }
+
+  #submit {
+    padding: 6px 4px 7px 7px;
+    margin-top: 5px;
+    border: 0px;
+    font-size: 18px;
+    background-color: #f7f7f7;
+    border: 3px groove lightgray;
+    border-radius: 5px;
+  }
+
+  #submit:hover {
+    background-color: #bfe2ff;
+  }
+
+
 </style>
+<h2>Søg efter {{type}} (fornavn/efternavn):</h2>
+<form action="" method="post">
+  <input type="text" id="searchfield" placeholder="Søg her" name="searchInput" maxlength="100" />
+  <input type="submit" id="submit" name="postSubmit" value="Søg" /><br /><br />
+</form><br /><br />
 <table>
   <tr>
     {% for name in header %}
-    <th style="text-align: center">{{name}}</th>
+    <th style="text-align: center">{{name | safe}}</th>
     {% endfor %}
   </tr>
   {% for row in data %}
   <tr>
     {% for col in row %}
-    <td style="text-align: center">{{col}}</td>
+    <td style="text-align: center">{{col | safe}}</td>
     {% endfor %}
   </tr>
   {% endfor %}

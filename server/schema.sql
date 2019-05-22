@@ -13,12 +13,12 @@ DROP TABLE IF EXISTS users_backup;
 
 CREATE TABLE IF NOT EXISTS users(
 	CPR char(10) PRIMARY KEY,
-	firstname varchar(120) NOT NULL,
-	lastname varchar(120) NOT NULL,
+	firstname varchar(120),
+	lastname varchar(120),
 	password varchar(120) NOT NULL,
 	address text DEFAULT 'Adresse ikke sat',
-	created_date date,
-	last_online_date date
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+	last_online_date timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS users_backup(
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS users_backup(
 	lastname varchar(120) NOT NULL,
 	password varchar(120) NOT NULL,
 	address text DEFAULT 'Adresse ikke sat',
-	created_date date,
-	last_online_date date
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+	last_online_date timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS employees(
@@ -73,8 +73,8 @@ CREATE TABLE IF NOT EXISTS threads(
 	id SERIAL PRIMARY KEY,
 	CPR char(10) NOT NULL,
 	header varchar(100) NOT NULL,
-	content text,
-	created_date date DEFAULT CURRENT_DATE,
+	content text NOT NULL,
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (CPR) REFERENCES users(CPR)
 );
 
@@ -83,8 +83,8 @@ CREATE TABLE IF NOT EXISTS posts(
 	tid integer NOT NULL,
 	CPR char(10) NOT NULL,
   content text NOT NULL,
-	created_date date DEFAULT CURRENT_DATE,
-	modified_date date DEFAULT CURRENT_DATE,
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (tid) REFERENCES threads(id),
 	FOREIGN KEY (CPR) REFERENCES users(CPR)
 );
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS medical(
 	latin_name varchar(120) NOT NULL,
 	description text DEFAULT 'Ingen beskrivelse sat',
 	created_by varchar(120) NOT NULL,
-	created_date date DEFAULT CURRENT_DATE
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
 DROP TRIGGER IF EXISTS insert_user ON users;
@@ -125,5 +125,11 @@ CREATE TRIGGER insert_user AFTER UPDATE ON users
 FOR ROW
 	WHEN (OLD.* IS DISTINCT FROM NEW.*)
 	EXECUTE PROCEDURE update_userbackup();
-	
+
+CREATE TRIGGER insert_user AFTER UPDATE ON users
+FOR ROW
+	WHEN (OLD.* IS DISTINCT FROM NEW.*)
+	EXECUTE PROCEDURE update_userbackup();
+		
+
 COMMIT;

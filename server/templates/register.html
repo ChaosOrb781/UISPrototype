@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style type="text/css">
+  input {
+    padding: 6px 4px 7px 7px;
+    margin-top: 5px;
+    border: 0px;
+    font-size: 18px;
+  }
+
+  textarea {
+    padding: 6px 4px 7px 7px;
+    margin-top: 5px;
+    border: 0px;
+    font-size: 18px;
+  }
+
+  #header {
+    width: 100%;
+    border-radius: 7px;
+  }
+
+  #textField {
+    padding: 5px;
+    margin: 2px, 20px, 2px, 20px;
+    border-radius: 7px;
+    width: 100%;
+    height: 100px;
+  }
+
+  #submit {
+    background-color: #f7f7f7;
+    border: 3px groove lightgray;
+    border-radius: 5px;
+  }
+
+  #submit:hover {
+    background-color: #bfe2ff;
+  }
+</style>
+
+<div>
+	<br />
+  <form action="" method="post">
+    <h2>Register - {{type}}</h2>
+    <br />
+    <h3>P&aring;kr&aelig;vet</h3>
+    <input type="text" id="header" placeholder="CPR" name="CPR" maxlength="10" /><br /><br />
+    <input type="text" id="header" placeholder="Fornavn" name="Fornavn" maxlength="120" /><br /><br />
+    <input type="text" id="header" placeholder="Efternavn" name="Efternavn" maxlength="120" /><br /><br />
+    <input type="text" id="header" placeholder="Password" name="Password" maxlength="120" /><br /><br />
+    {% if type == "borger" %}
+    <h3>Valgfrit</h3>
+    <input type="text" id="header" placeholder="Adresse" name="Adresse" /><br /><br />
+    <input type="text" id="header" placeholder="Jounal ID" name="JournalID" /><br /><br />
+    <input type="text" id="header" placeholder="Proces ID" name="ProcesID" /><br /><br />
+    {% elif type == "ansat"%}
+    <input type="text" id="header" placeholder="Jobstilling" name="Jobstilling" maxlength="100" /><br /><br />
+    <input type="text" id="header" placeholder="Arbejder hos (ID)" name="Works_at" maxlength="100" /><br /><br />
+    Midlertidig?:
+    <input type="checkbox" name="temp" /><br /><br />
+    Rettigheder:<br />
+    <input type="radio" name="privilege" value="2" style="margin-right: 10px;" />Professionel (oprette brugere, tilføje til medicin håndbog)<br />
+    <input type="radio" name="privilege" value="1" style="margin-right: 10px;" />Assisterende (annoncere)<br />
+    <input type="radio" name="privilege" value="0" style="margin-right: 10px;" checked />Moderator (skrive på tråde, slette tråde)<br /><br />
+    <h3>Valgfrit</h3>
+    <input type="text" id="header" placeholder="Adresse" name="Adresse" /><br /><br />
+    {% endif %}
+    {% if error != "" %}
+    <h4 style="color: red;">Fejl: {{error | safe}}</h4>
+    {% endif %}
+    <input type="submit" id="submit" name="submit" value="Opret {{type}}" />
+  </form>
+</div>
+{% endblock content %}

@@ -16,50 +16,118 @@
     border-right: 2px solid #7f7f7f;
   }
 
-  td {
+  tr {
     border-top: 1px solid #000000;
     border-bottom: 1px solid #000000;
     padding: 2px;
+    object-fit: contain;
+    table-layout: fixed;
+  }
+
+  td {
+    padding: 5px;
+  }
+
+  input {
+    padding: 6px 4px 7px 7px;
+    margin-top: 5px;
+    border: 0px;
+    font-size: 18px;
+    border-radius: 7px;
+  }
+
+  #searchfield {
+    width: 80%;
+  }
+
+  #submit {
+    background-color: #f7f7f7;
+    border: 3px groove lightgray;
+    border-radius: 5px;
+  }
+
+  #submit:hover {
+    background-color: #bfe2ff;
   }
 
   #profileSummary {
     display: inline-block;
-    height: 40px;
+    border-left: 1px solid black;
     width: 20%;
   }
 
   #threadHeader {
-    height: 40px;
     display: inline-block;
     width: 79%;
-    border-right: 2px solid black;
   }
 
   #threadHeaderButton {
     text-decoration: none;
+    padding: 4px;
     position: relative;
-    top: 6px;
     color: inherit;
     border: none;
     font-size: 20px;
   }
 
   #threadHeaderButton:hover {
-    background-color: darkblue;
+    background-color: #bfe2ff;
     color: white;
     cursor: pointer;
+    border-radius: 4px;
+  }
+
+  #delete {
+    text-decoration: none;
+    padding: 2px;
+    padding-left: 4px;
+    margin-right: 5px;
+    position: relative;
+    background-color: #ff0000;
+    border: 3px groove red;
+    border-radius: 4px;
+    color: white;
+    border: none;
+    font-size: 16px;
+  }
+
+  #delete:hover {
+    border: 3px groove black;
+    cursor: pointer;
+    border-radius: 4px;
   }
 </style>
+<h2>Søg efter diskussionstråd:</h2>
+<form action="" method="post">
+  <input type="text" id="searchfield" placeholder="Søg her" name="searchInput" maxlength="100" />
+  <input type="submit" id="submit" name="postSubmit" value="Søg" /><br /><br />
+</form>
 <h2>{{title | safe}}</h2>
 <table>
   {% for thread in threads %}
   <tr>
     <td id="threadHeader">
-      <a id="threadHeaderButton" href="{{url_for('enterThread', threadid=thread.id)}}">{{thread.header | safe}}</a>
+      {% if current_user != [] and privilages >= 0 %}
+      <a id="delete" href="{{url_for('deleteThread', threadid=thread.id)}}">
+        Slet
+      </a>
+      {% endif %}
+      <a id="threadHeaderButton" href="{{url_for('enterThread', threadid=thread.id)}}"
+         {% if thread.annoucement %}
+         style="color: crimson"
+         {% else %}
+         style="color: black"
+         {% endif %}>{{thread.header | safe}}</a>
     </td>
     <td id="profileSummary">
-      <h4>{{thread.username | safe}}</h4>
-      {{thread.createddate}}
+      <h4
+        {% if thread.annoucement %}
+          style="color: crimson"
+        {% else %}
+          style="color: black"
+        {% endif %}
+      >{{thread.username | safe}}</h4>
+      {{thread.createddate | safe}}
     </td>
   </tr>
   {% endfor %}

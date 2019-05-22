@@ -5,6 +5,8 @@
   table {
     border-collapse: collapse;
     margin-top: 10px;
+    table-layout: auto;
+    object-fit: cover;
     border-top: 5px groove #000000;
     border-bottom: 5px groove #000000;
     width: 100%;
@@ -27,6 +29,10 @@
   }
 
   #submit {
+    padding: 6px 4px 7px 7px;
+    margin-top: 5px;
+    border: 0px;
+    font-size: 18px;
     background-color: #f7f7f7;
     border: 3px groove lightgray;
     border-radius: 5px;
@@ -61,6 +67,26 @@
     height: 100px;
     {{border}}
   }
+
+  #delete {
+    text-decoration: none;
+    padding: 2px;
+    padding-left: 4px;
+    margin-right: 5px;
+    position: relative;
+    background-color: #ff0000;
+    border: 3px groove red;
+    border-radius: 4px;
+    color: white;
+    border: none;
+    font-size: 16px;
+  }
+
+  #delete:hover {
+    border: 3px groove black;
+    cursor: pointer;
+    border-radius: 4px;
+  }
 </style>
 <h2>{{thread.header | safe}}</h2>
 <table>
@@ -68,37 +94,46 @@
     <td id="profileSummary">
       <h3 style="color: red">{{thread.username | safe}}</h3>
       {% if thread.journalID != None and thread.processID != None %}
-        <p>Proces ID: {{thread.processID}}</p>
-        <p>Journal ID: {{thread.journalID}}</p>
+        Proces ID: {{thread.processID}}<br />
+        Journal ID: {{thread.journalID}}<br />
       {% else %}
-        <p>Jobstilling: {{thread.specialization | safe}}</p>
-        <p>Arbjeder os: {{post.works_at}}</p>
+        Jobstilling: {{thread.specialization | safe}}<br />
+        Arbjeder os: {{thread.works_at}}<br />
       {% endif %}
-      <p>Skrevet: {{thread.createddate}}</p>
+      Skrevet: {{thread.createddate}}
     </td>
     <td id="postContent">
       <p>{{thread.content | safe}}</p>
     </td>
   </tr>
-  {% for post in thread.posts %}
-  <tr>
-    <td id="profileSummary">
-      <h4>{{post.username | safe}}</h4>
-      {% if post.journalID != None and post.processID != None %}
-      <p>Proces ID: {{post.processID}}</p>
-      <p>Journal ID: {{post.journalID}}</p>
-      {% else %}
-      <p>Jobstilling: {{post.specialization | safe}}</p>
-      <p>Arbjeder os: {{post.works_at}}</p>
-      {% endif %}
-      <p>Skrevet: {{post.createddate}}</p>
-      <p>Ændret: {{post.modifieddate}}</p>
-    </td>
-    <td id="postContent">
-      <p>{{post.content | safe}}</p>
-    </td>
-  </tr>
-  {% endfor %}
+  {% if thread.posts != [] %}
+    {% for post in thread.posts %}
+    <tr>
+      <td id="profileSummary">
+        <h4>{{post.username | safe}}</h4>
+        {% if post.journalID != None and post.processID != None %}
+          Proces ID: {{post.processID}}<br />
+          Journal ID: {{post.journalID}}<br />
+        {% else %}
+          Jobstilling: {{post.specialization | safe}}<br />
+          Arbjeder os: {{post.works_at | safe}}<br />
+        {% endif %}
+        Skrevet: {{post.createddate}}<br />
+        Ændret: {{post.modifieddate}}
+      </td>
+      <td id="postContent">
+        <p>
+          {% if current_user != [] and privilages >= 0 %}
+          <a id="delete" href="{{url_for('deletePost', postid=post.id, threadid=thread.id)}}">
+            Slet
+          </a>
+          {% endif %}
+          {{post.content | safe}}
+        </p>
+      </td>
+    </tr>
+    {% endfor %}
+  {% endif %}
 </table>
 {% if privilages >= 0 or current_user[0] == thread.CPR %}
 <div id="newPost">

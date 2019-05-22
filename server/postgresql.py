@@ -30,33 +30,50 @@ def query(conn, query_text):
     cursor = conn.cursor()
     cursor.execute(query_text)
     data = cursor.fetchall()
-    i = 0
-    for row in data:
-      print(str(i) + ". row:")
-      j = 0
-      for col in row:
-        print("  " + str(j) + ". col: " + str(col) + " (", type(col), ")")
-        j += 1
-      i += 1
     data = np.array(data)
-    return (data, data.shape, True)
+    conn.commit()
+    return (data, cursor.rowcount, True)
   except (Exception, psycopg2.Error) as error:
     print("Failed to execute query due to: ", error)
     return (0, 0, False)
 
-def insert(conn, query_text):
+def execute(conn, query_text):
   try:
     print("Executing query:\n" + query_text)
     cursor = conn.cursor()
     cursor.execute(query_text)
+    rownum = cursor.rowcount
     conn.commit()
-    return True
+    return (rownum, True)
   except (Exception, psycopg2.Error) as error:
     print("Failed to execute query due to: ", error)
-    return False
+    return (0, False)
 
-def getUserByName(conn, username):
-  user, shape, state = query(conn, 'SELECT * FROM users ')
+def insertOrUpdate(conn, tableName, primaryColoumn, key, attributes):
+  data, rowcount, stateExist = query(conn, "SELECT " + primaryColoumn + " FROM " + tableName + " WHERE " + primaryColoumn + "='" + key + "'")
+  if rowcount == 1:
+    #Should update row
+    query_text = "UPDATE " + tableName + " SET"
+    for i in range(len(attributes)):
+      column, value = attributes[i]
+      query_text += " " + column + "=" + str(value)
+      if (i < len(attributes) - 1):
+        query_text += ","
+    query_text += " WHERE " + primaryColoumn + "='" + key + "'"
+    return execute(conn, query_text)
+  else:
+    #Should insert row
+    query_text = "INSERT INTO " + tableName + " ("
+    query_values = " VALUES ("
+    for i in range(len(attributes)):
+      column, value = attributes[i]
+      query_text += column
+      query_values += str(value)
+      if (i < len(attributes) - 1):
+        query_text += ", "
+        query_values += ", "
+    query_text += ")" + query_values + ")"
+    return execute(conn, query_text)
 
 def getDatabaseTableNames(conn):
   print("Querying all open tables of current database...")

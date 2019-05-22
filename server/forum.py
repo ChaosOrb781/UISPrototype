@@ -1,12 +1,14 @@
 class threadOverview:
-  def __init__(self, id : str, username : str, header : str, date : str):
+  def __init__(self, id : str, username : str, header : str, date : str, privilege : int):
     self.id = id
     self.username = username
     self.header = header
     self.createddate = date
+    self.annoucement = privilege != None and privilege > 1
 
 class post:
-  def __init__(self, username : str, content : str, created : str, modified : str, processID : str, journalID : str, specialization : str, works_at : str):
+  def __init__(self, id : str, username : str, content : str, created : str, modified : str, processID : str, journalID : str, specialization : str, works_at : str):
+    self.id = id
     self.username = username
     self.processID = processID
     self.journalID = journalID
