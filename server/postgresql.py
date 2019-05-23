@@ -26,24 +26,27 @@ def closeConnection(conn):
 # Executes query and returns the data tupled with a boolean the state
 def query(conn, query_text):
   try:
-    print("Executing query:\n" + query_text)
+    print("Querying:\n" + query_text)
     cursor = conn.cursor()
     cursor.execute(query_text)
     data = cursor.fetchall()
     data = np.array(data)
+    rownum = cursor.rowcount
     conn.commit()
-    return (data, cursor.rowcount, True)
+    print(str(rownum) + " affected")
+    return (data, rownum, True)
   except (Exception, psycopg2.Error) as error:
     print("Failed to execute query due to: ", error)
     return (0, 0, False)
 
 def execute(conn, query_text):
   try:
-    print("Executing query:\n" + query_text)
+    print("Executing:\n" + query_text)
     cursor = conn.cursor()
     cursor.execute(query_text)
     rownum = cursor.rowcount
     conn.commit()
+    print(str(rownum) + " affected")
     return (rownum, True)
   except (Exception, psycopg2.Error) as error:
     print("Failed to execute query due to: ", error)

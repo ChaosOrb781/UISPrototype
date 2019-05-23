@@ -73,7 +73,7 @@ def formatDate(date : str):
   inputDate = str.split(dateformat[0], '-')
   input = datetime.datetime(int(inputDate[0]), int(inputDate[1]), int(inputDate[2])) + datetime.timedelta(hours=23)
   today = datetime.datetime.now()
-  if today > input:
+  if today < input:
     return str.split(dateformat[1], '.')[0]
   else:
     return dateformat[0]
@@ -400,6 +400,9 @@ def loginPage():
               print("Found user in DB: " + user[0][1] + " " + user[0][2] + " with password: " + user[0][3])
               #Check in database if password is correct for CPR
               if (password == user[0][3]):
+                now = datetime.datetime.now()
+                postgresql.execute(conn, "UPDATE users SET last_online_date='" + str(now) + "' WHERE CPR='" + user[0][0] + "'")
+                user[0][6] = now
                 current_user=user[0]
                 if (not patient):
                   privilages = int(user[0][10])
@@ -414,8 +417,8 @@ def loginPage():
             else:
               usercolor = "#ff0000"
               error = "Ingen bruger med denne CPR"
-        except:
-          print("Not submitting")
+        except Exception as e:
+          print("Not submitting: " + str(e))
     elif request.method == 'GET':
       print("Login: GET request")
   except Exception as e:
