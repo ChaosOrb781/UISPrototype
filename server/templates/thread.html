@@ -21,7 +21,7 @@
   td {
     border-top: 1px solid #000000;
     border-bottom: 1px solid #000000;
-    padding: 2px;
+    padding: 6px;
   }
 
   .input {
@@ -68,29 +68,32 @@
     {{border}}
   }
 
-  #delete {
+  .tag {
     text-decoration: none;
     padding: 2px;
     padding-left: 4px;
     margin-right: 5px;
     position: relative;
-    background-color: #ff0000;
-    border: 3px groove red;
     border-radius: 4px;
-    color: white;
     border: none;
     font-size: 16px;
   }
 
+  #delete {
+    background-color: #ff0000;
+    border: 2px groove gray;
+    color: white;
+  }
+
   #delete:hover {
-    border: 3px groove black;
+    border: 3px groove red;
     cursor: pointer;
     border-radius: 4px;
   }
 </style>
 <h2>{{thread.header | safe}}</h2>
 <table>
-  <tr>
+  <tr style="border-bottom: 2px groove #000000;">
     <td id="profileSummary">
       <h3 style="color: red">{{thread.username | safe}}</h3>
       {% if thread.journalID != None and thread.processID != None %}
@@ -124,7 +127,7 @@
       <td id="postContent">
         <p>
           {% if current_user != [] and privilages >= 0 %}
-          <a id="delete" href="{{url_for('deletePost', postid=post.id, threadid=thread.id)}}">
+          <a class="tag" id="delete" href="{{url_for('deletePost', postid=post.id, threadid=thread.id)}}">
             Slet
           </a>
           {% endif %}
@@ -135,7 +138,7 @@
     {% endfor %}
   {% endif %}
 </table>
-{% if privilages >= 0 or current_user[0] == thread.CPR %}
+{% if privilages >= 0 or current_user[0] == thread.CPR or (current_user != [] and thread.open) %}
 <div id="newPost">
   <h2>Svar:</h2>
   <form action="" method="post">

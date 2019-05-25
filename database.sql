@@ -1,0 +1,4 @@
+\set AUTOCOMMIT TRUE
+\echo :AUTOCOMMIT
+
+CREATE DATABASE prototype;

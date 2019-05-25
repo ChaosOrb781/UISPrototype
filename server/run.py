@@ -1,6 +1,5 @@
 from flask import Flask, redirect, url_for, request
 from flask import render_template
-from flask_bcrypt import Bcrypt
 import time
 import datetime
 import numpy as np
@@ -17,6 +16,9 @@ patient = True
 privilages = -1
 app = Flask(__name__)
 
+def tostring(s):
+  return str(s).replace("'", "\'")
+
 @app.route("/", methods=['GET', 'POST'])
 def startPage():
   searchFilter = ""
@@ -28,7 +30,7 @@ def startPage():
       "SELECT threads.id, users.firstname, users.lastname, threads.header, threads.created_date, employees.privilege " +
         "FROM threads INNER JOIN users ON users.CPR=threads.CPR " +
         "LEFT JOIN employees ON employees.CPR=threads.CPR " +
-          "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege > 1 THEN employees.privilege ELSE 0 END DESC, " +
+          "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege >= 1 THEN employees.privilege ELSE 0 END DESC, " +
           "created_date DESC",
       "Nye diskussionstråde")
   else:
@@ -36,8 +38,8 @@ def startPage():
       "SELECT threads.id, users.firstname, users.lastname, threads.header, threads.created_date, employees.privilege " +
         "FROM threads INNER JOIN users ON users.CPR=threads.CPR " +
         "LEFT JOIN employees ON employees.CPR=threads.CPR " +
-          "WHERE threads.header LIKE '%" + searchFilter + "%' " +
-            "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege > 1 THEN employees.privilege ELSE 0 END DESC, " +
+          "WHERE threads.header LIKE '%" + tostring(searchFilter) + "%' " +
+            "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege >= 1 THEN employees.privilege ELSE 0 END DESC, " +
             "created_date DESC " +
               "LIMIT 17",
       "Nye diskussionstråde")
@@ -53,18 +55,18 @@ def myThreads():
     if searchFilter == "":
       return renderThreads(
         "SELECT threads.id, users.firstname, users.lastname, threads.header, threads.created_date, employees.privilege " +
-          "FROM threads INNER JOIN users ON users.CPR=threads.CPR AND threads.CPR='" + str(current_user[0]) + "' " +
-          "LEFT JOIN employees ON employees.CPR=threads.CPR AND threads.CPR='" + str(current_user[0]) + "' " +
-            "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege > 1 THEN employees.privilege ELSE 0 END DESC, " +
+          "FROM threads INNER JOIN users ON users.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' " +
+          "LEFT JOIN employees ON employees.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' " +
+            "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege >= 1 THEN employees.privilege ELSE 0 END DESC, " +
             "created_date DESC",
             "Mine diskussionstråde")
     else:
       return renderThreads(
         "SELECT threads.id, users.firstname, users.lastname, threads.header, threads.created_date, employees.privilege " +
-          "FROM threads INNER JOIN users ON users.CPR=threads.CPR AND threads.CPR='" + str(current_user[0]) + "' "
-          "LEFT JOIN employees ON employees.CPR=threads.CPR AND threads.CPR='" + str(current_user[0]) + "' " +
+          "FROM threads INNER JOIN users ON users.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' "
+          "LEFT JOIN employees ON employees.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' " +
             "WHERE threads.header LIKE '%" + searchFilter + "%' " +
-              "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege > 1 THEN employees.privilege ELSE 0 END DESC, " +
+              "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege >= 1 THEN employees.privilege ELSE 0 END DESC, " +
               "created_date DESC",
               "Mine diskussionstråde")
 
@@ -116,7 +118,7 @@ def enterThread():
         threadid = request.args['threadid']
         success = postgresql.execute(conn,
           "INSERT INTO posts (tid, CPR, content) " +
-          "VALUES (" + threadid + ", '" + current_user[0] + "', '" + postText + "')")
+          "VALUES (" + threadid + ", '" + current_user[0] + "', '" + tostring(postText) + "')")
         if success:
           postgresql.closeConnection(conn)
           return redirect(url_for('enterThread', threadid=threadid))
@@ -139,12 +141,12 @@ def enterThread():
         "SELECT threads.id, users.firstname, users.lastname, threads.header, threads.content, threads.created_date, " +
           "patients.process_id, patients.journal, " +
           "employees.specialization, employees.works_at, " +
-          "users.CPR " +
+          "users.CPR, threads.is_open " +
           "FROM threads " +
             "INNER JOIN users ON threads.CPR=users.CPR " +
             "LEFT JOIN patients ON users.CPR=patients.CPR " +
             "LEFT JOIN employees ON users.CPR=employees.CPR " +
-            "WHERE threads.id=" + str(threadid))
+            "WHERE threads.id=" + tostring(threadid))
       if stateThread and rowcount > 0:
         thread = threadDat[0]
         #POST INFO
@@ -158,12 +160,12 @@ def enterThread():
               "INNER JOIN users ON posts.CPR=users.CPR " +
               "LEFT JOIN patients ON users.CPR=patients.CPR " +
               "LEFT JOIN employees ON users.CPR=employees.CPR " +
-              "WHERE posts.tid=" + str(thread[0]) + " ORDER BY posts.created_date DESC")
+              "WHERE posts.tid=" + tostring(thread[0]) + " ORDER BY posts.created_date DESC")
         if statePosts:
           posts = []
           for post in postsDat:
             posts.append(forum.post(str(post[9]), post[0] + " " + post[1], post[2], formatDate(str(post[3])), formatDate(str(post[4])), post[5], post[6], post[7], post[8]))
-          thread = forum.thread(thread[10], thread[1] + " " + thread[2], thread[3], thread[4], formatDate(str(thread[5])), thread[6], thread[7], thread[8], thread[9], posts)
+          thread = forum.thread(thread[10], thread[1] + " " + thread[2], thread[3], thread[4], formatDate(str(thread[5])), thread[6], thread[7], thread[8], thread[9], posts, thread[11])
           postgresql.closeConnection(conn)
           error=""
           border=""
@@ -197,15 +199,16 @@ def makeThread():
   if request.method == 'POST':
     if current_user == []:
       return redirect(url_for('startPage'))
-    header = str(request.form.get('header'))
-    body = str(request.form.get('content'))
+    header = tostring(request.form.get('header'))
+    body = tostring(request.form.get('content'))
+    open = tostring(request.form.get('open'))
     if header == "" or body == "":
       return render_template('createThread.html', current_user=current_user, privilages=privilages, information=information, postColor="red", error="Begge felter skal være udfyldte")
     conn, stateConn = postgresql.createConnection("prototype")
     if stateConn:
       rowcount, success = postgresql.execute(conn,
-        "INSERT INTO threads (CPR, header, content) " +
-        "VALUES ('" + current_user[0] + "', '" + header + "', '" + body + "')")
+        "INSERT INTO threads (CPR, header, content, is_open) " +
+        "VALUES ('" + current_user[0] + "', '" + tostring(header) + "', '" + tostring(body) + "', " + ("TRUE" if open == "on" else "FALSE") + ")")
       if success:
         postgresql.closeConnection(conn)
         return redirect(url_for('startPage'))

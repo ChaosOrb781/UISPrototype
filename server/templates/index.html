@@ -77,24 +77,48 @@
     border-radius: 4px;
   }
 
-  #delete {
+  .tag {
     text-decoration: none;
     padding: 2px;
     padding-left: 4px;
     margin-right: 5px;
     position: relative;
-    background-color: #ff0000;
-    border: 3px groove red;
     border-radius: 4px;
-    color: white;
     border: none;
     font-size: 16px;
   }
 
+  #delete {
+    background-color: #ff0000;
+    border: 2px groove gray;
+    color: white;
+  }
+
   #delete:hover {
-    border: 3px groove black;
+    border: 3px groove red;
     cursor: pointer;
     border-radius: 4px;
+  }
+
+  #professional {
+    background-color: crimson;
+    border: 2px groove gray;
+    width: 105px;
+    color: white;
+  }
+
+  #assistant {
+    background-color: green;
+    border: 2px groove gray;
+    width: 82px;
+    color: white;
+  }
+
+  #moderator {
+    background-color: goldenrod;
+    border: 2px groove gray;
+    width: 82px;
+    color: white;
   }
 </style>
 <h2>Søg efter diskussionstråd:</h2>
@@ -108,25 +132,56 @@
   <tr>
     <td id="threadHeader">
       {% if current_user != [] and privilages >= 0 %}
-      <a id="delete" href="{{url_for('deleteThread', threadid=thread.id)}}">
+      <a class="tag" id="delete" href="{{url_for('deleteThread', threadid=thread.id)}}">
         Slet
       </a>
       {% endif %}
       <a id="threadHeaderButton" href="{{url_for('enterThread', threadid=thread.id)}}"
          {% if thread.annoucement %}
-         style="color: crimson"
+          {% if thread.privilege == 2 %}
+            style="color: crimson"
+          {% elif thread.privilege == 1 %}
+            style="color: green"
+          {% else %}
+            style="color: goldenrod"
+          {% endif %}
          {% else %}
-         style="color: black"
+          style="color: black"
          {% endif %}>{{thread.header | safe}}</a>
     </td>
     <td id="profileSummary">
-      <h4
-        {% if thread.annoucement %}
-          style="color: crimson"
+      <h3 {% if thread.annoucement %}
+            {% if thread.privilege == 2 %}
+              style="color: crimson;"
+            {% elif thread.privilege == 1 %}
+              style="color: green;"
+            {% else %}
+              style="color: goldenrod;"
+            {% endif %}
+          {% else %}
+            style="color: black"
+          {% endif %}>
+        {{thread.username | safe}}
+      </h3>
+      {% if thread.privilege != None %}
+      <h4 class="tag"
+        {% if thread.privilege == 2 %}
+          id="professional"
+        {% elif thread.privilege == 1 %}
+          id="assistant"
         {% else %}
-          style="color: black"
+          id="moderator"
+        {% endif %}>
+
+        {% if thread.privilege == 2 %}
+          Professionel
+        {% elif thread.privilege == 1 %}
+          Assistent
+        {% else %}
+          Moderator
         {% endif %}
-      >{{thread.username | safe}}</h4>
+      </h4>
+      {% endif %}
       {{thread.createddate | safe}}
     </td>
   </tr>
