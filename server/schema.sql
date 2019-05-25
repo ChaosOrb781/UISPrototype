@@ -1,7 +1,6 @@
 \set AUTOCOMMIT off
 \echo :AUTOCOMMIT
 
-DROP TABLE IF EXISTS medical;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS threads;
 DROP TABLE IF EXISTS employees;
@@ -75,6 +74,7 @@ CREATE TABLE IF NOT EXISTS threads(
 	header varchar(100) NOT NULL,
 	content text NOT NULL,
 	created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+	is_open boolean DEFAULT TRUE,
 	FOREIGN KEY (CPR) REFERENCES users(CPR)
 );
 
@@ -87,15 +87,6 @@ CREATE TABLE IF NOT EXISTS posts(
 	modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (tid) REFERENCES threads(id),
 	FOREIGN KEY (CPR) REFERENCES users(CPR)
-);
-
-CREATE TABLE IF NOT EXISTS medical(
-	id integer PRIMARY KEY,
-	name varchar(120) NOT NULL,
-	latin_name varchar(120) NOT NULL,
-	description text DEFAULT 'Ingen beskrivelse sat',
-	created_by varchar(120) NOT NULL,
-	created_date timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
 DROP TRIGGER IF EXISTS insert_user ON users;
@@ -125,11 +116,5 @@ CREATE TRIGGER insert_user AFTER UPDATE ON users
 FOR ROW
 	WHEN (OLD.* IS DISTINCT FROM NEW.*)
 	EXECUTE PROCEDURE update_userbackup();
-
-CREATE TRIGGER insert_user AFTER UPDATE ON users
-FOR ROW
-	WHEN (OLD.* IS DISTINCT FROM NEW.*)
-	EXECUTE PROCEDURE update_userbackup();
-		
 
 COMMIT;

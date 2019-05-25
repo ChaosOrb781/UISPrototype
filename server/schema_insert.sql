@@ -24,7 +24,7 @@ INSERT INTO public.patients(CPR, journal, process_id) VALUES ('0711012286', 6, 6
 INSERT INTO public.employees(CPR, specialization, temp, privilege, works_at) VALUES ('1007889934', 'Sygeplejerske', FALSE, 1, 0);
 INSERT INTO public.employees(CPR, specialization, temp, privilege, works_at) VALUES ('2412199955', 'Overl&aelig;ge', FALSE, 2, 0);
 
-INSERT INTO public.threads(CPR, header, content) VALUES ('0206874571', 'wtf is this forum', 'pls someone eli5 why do we need dis shiet');
+INSERT INTO public.threads(CPR, header, content, is_open) VALUES ('0206874571', 'wtf is this forum', 'pls someone eli5 why do we need dis shiet', FALSE);
 INSERT INTO public.threads(CPR, header, content) VALUES ('1212121212', 'diarrhea and anal pain', 'send halp plx');
 
 INSERT INTO public.posts(tid, CPR, content) VALUES ((SELECT id FROM threads WHERE CPR='0206874571' LIMIT 1), '1007889934', 'Ved anale smerter anbefaler vi en n&aelig;rmere unders&oslash;gelse hos egen l&aelig;ge.');
@@ -32,8 +32,5 @@ INSERT INTO public.posts(tid, CPR, content) VALUES ((SELECT id FROM threads WHER
 INSERT INTO public.posts(tid, CPR, content) VALUES ((SELECT id FROM threads WHERE CPR='1212121212' LIMIT 1), '1007889934','Jeg vil lige tilf&oslash;je, at k&oslash;nsskifteoperationer er v&aelig;sentligt billigere i japan.');
 INSERT INTO public.posts(tid, CPR, content) VALUES ((SELECT id FROM threads WHERE CPR='0206874571' LIMIT 1), '2412199955', 'F&aring; dig en s&oslash;dere k&aelig;reste.');
 INSERT INTO public.posts(tid, CPR, content) VALUES ((SELECT id FROM threads WHERE CPR='1212121212' LIMIT 1), '1007889934','Du kan ogs&aring; overveje en cyborg operation for kun $999999999999.99');
-
-INSERT INTO public.medical(id, name, latin_name, description, created_by) VALUES (1, 'Accessio', 'Ceserio', 'Epileptisk anfald/kramper', 'Doktor Hansen');
-INSERT INTO public.medical(id, name, latin_name, description, created_by) VALUES (2, 'Testistorsion', 'EvenMoreTest', 'Noget du ikke vil bryde dig om', 'Doktor Hansen');
 
 COMMIT;
