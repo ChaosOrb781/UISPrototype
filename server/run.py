@@ -54,21 +54,31 @@ def myThreads():
       return redirect(url_for('startPage'))
     if searchFilter == "":
       return renderThreads(
-        "SELECT threads.id, users.firstname, users.lastname, threads.header, threads.created_date, employees.privilege " +
+        "SELECT * FROM " +
+        "(SELECT threads.id AS id, users.firstname AS fn, users.lastname AS ln, threads.header AS h, threads.created_date AS cd, employees.privilege AS ep " +
           "FROM threads INNER JOIN users ON users.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' " +
           "LEFT JOIN employees ON employees.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' " +
-            "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege >= 1 THEN employees.privilege ELSE 0 END DESC, " +
-            "created_date DESC",
-            "Mine diskussionstråde")
+          "UNION " +
+        "SELECT threads.id AS id, users.firstname AS fn, users.lastname AS ln, threads.header AS h, threads.created_date AS cd, employees.privilege AS ep " +
+          "FROM threads INNER JOIN users ON users.CPR=threads.CPR " +
+          "LEFT JOIN employees ON employees.CPR=threads.CPR " +
+          "WHERE id IN (SELECT tid FROM posts WHERE posts.CPR='" + tostring(current_user[0]) + "')) AS foo " +
+        "ORDER BY foo.cd DESC",
+        "Mine diskussionstråde")
     else:
       return renderThreads(
-        "SELECT threads.id, users.firstname, users.lastname, threads.header, threads.created_date, employees.privilege " +
-          "FROM threads INNER JOIN users ON users.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' "
+        "SELECT * FROM " +
+        "(SELECT threads.id AS id, users.firstname AS fn, users.lastname AS ln, threads.header AS h, threads.created_date AS cd, employees.privilege AS ep " +
+          "FROM threads INNER JOIN users ON users.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' " +
           "LEFT JOIN employees ON employees.CPR=threads.CPR AND threads.CPR='" + tostring(current_user[0]) + "' " +
-            "WHERE threads.header LIKE '%" + searchFilter + "%' " +
-              "ORDER BY CASE WHEN employees.privilege IS NOT NULL AND employees.privilege >= 1 THEN employees.privilege ELSE 0 END DESC, " +
-              "created_date DESC",
-              "Mine diskussionstråde")
+          "UNION " +
+        "SELECT threads.id AS id, users.firstname AS fn, users.lastname AS ln, threads.header AS h, threads.created_date AS cd, employees.privilege AS ep " +
+          "FROM threads INNER JOIN users ON users.CPR=threads.CPR " +
+          "LEFT JOIN employees ON employees.CPR=threads.CPR " +
+          "WHERE id IN (SELECT tid FROM posts WHERE posts.CPR='" + tostring(current_user[0]) + "')) AS foo " +
+        "WHERE foo.h LIKE '%" + searchFilter + "%' " +
+        "ORDER BY foo.cd DESC",
+        "Mine diskussionstråde")
 
 def formatDate(date : str):
   dateformat = str.split(date, ' ');

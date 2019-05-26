@@ -23,7 +23,7 @@
       margin: 5px;
       border-style: groove;
       background-color: #f1f1f1;
-      width: 150px;
+      width: 160px;
       height: 100%;
       display: inline-block;
     }
@@ -44,7 +44,7 @@
   <div id="title">
     <a href="/" style="text-decoration: none; color: black">
 			<h1> MinSundhedsplatform </h1>
-			<h2> Medicin H&aring;ndbog </h2>
+			<h2> Sundheds forum </h2>
       {% if current_user != [] %}
       <h3>
         {{current_user[1] + " " + current_user[2]  | safe}}
@@ -60,28 +60,27 @@
       <ul>
         {% if current_user != [] and privilages == 2 %}
           <a href="/"><li>Forside</li>          </a>
-          <a href="/minetr&aring;de"><li>Mine tr&aring;de</li>       </a>
+          <a href="/minetr&aring;de"><li>Mine aktiviter</li>       </a>
           <a href="/lavtr&aring;d"><li>Ny annoncering</li>          </a>
           <a href="{{url_for('registerUser', type="borger")}}"><li>Register borger</li>  </a>
           <a href="{{url_for('showTable', type="borger")}}"><li>Find borger</li>  </a>
           <a href="{{url_for('registerUser', type="ansat")}}"><li>Register ansat</li>   </a>
           <a href="{{url_for('showTable', type="ansat")}}"><li>Find ansat</li>  </a>
-          <a href="#"><li>Tilf&oslash;j medicin</li>   </a>
           <a href="/logout"><li>Log ud</li>     </a>
         {% elif current_user != [] and privilages == 1 %}
           <a href="/"><li>Forside</li>          </a>
-          <a href="/minetr&aring;de"><li>Mine tr&aring;de</li>       </a>
-          <a href="#"><li>Ny annoncering</li>          </a>
-          <a href="#"><li>Register borger</li>  </a>
+          <a href="/minetr&aring;de"><li>Mine aktiviter</li>       </a>
+          <a href="/lavtr&aring;d"><li>Ny annoncering</li>          </a>
+          <a href="{{url_for('registerUser', type="ansat")}}"><li>Register borger</li>  </a>
           <a href="/logout"><li>Log ud</li>     </a>
         {% elif current_user != [] and privilages == 0 %}
           <a href="/"><li>Forside</li>          </a>
-          <a href="/minetr&aring;de"><li>Mine tr&aring;de</li>       </a>
+          <a href="/minetr&aring;de"><li>Mine aktiviter</li>       </a>
           <a href="/lavtr&aring;d"><li>Ny tr&aring;d</li>          </a>
           <a href="/logout"><li>Log ud</li>     </a>
         {% elif current_user != [] and privilages == -1 %}
           <a href="/"><li>Forside</li>          </a>
-          <a href="/minetr&aring;de"><li>Mine tr&aring;de</li>       </a>
+          <a href="/minetr&aring;de"><li>Mine aktiviter</li>       </a>
           <a href="/lavtr&aring;d"><li>Ny tr&aring;d</li>          </a>
           <a href="/logout"><li>Log ud</li>     </a>
         {% else %}
